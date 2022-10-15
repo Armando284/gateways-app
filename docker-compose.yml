@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+
+  gateways-frontend:
+    # Name of the Frontend service
+    build: GatewaysFrontend # Frontend Dockerfile directory
+    ports:
+      - "4200:4200" # Forwarding Angular ports
+    volumes:
+      - ./GatewaysFrontend:/app # Enables changes in code to update in the image
+
+  gateways-backend:
+    # Name of the Backend service
+    build: GatewaysBackend # Backend Dockerfile directory
+    ports:
+      - "3000:3000" # Forwarding express server ports
+    volumes:
+      - ./GatewaysBackend:/app # Enables changes in code to update in the image
+    links:
+      - database
+
+  database:
+    # Name of the Database service
+    image: mongo # Name of the MongoDB image to build from
+    ports:
+      - "27017:27017" # Forwarding MongoDB ports
