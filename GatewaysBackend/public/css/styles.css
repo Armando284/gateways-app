@@ -1,22 +1,12 @@
 @import url(../Roboto-Regular.ttf);
 
 * {
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-	min-height: 100vh;
-	background: #fefefe;
-	font-family: "Roboto", sans-serif;
-}
-
-.endpoints-list > li {
-	display: flex;
-	flex-direction: column;
-}
-
-.danger-zone {
-	color: #fefefe;
-	background: rgb(214, 84, 84);
+  min-height: 100vh;
+  background: #fefefe;
+  font-family: "Roboto", sans-serif;
 }

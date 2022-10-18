@@ -1,57 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Musala Soft Gateways Api</title>
-		<link
-			href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
-			rel="stylesheet"
-			integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
-			crossorigin="anonymous"
-		/>
-		<link rel="stylesheet" href="./css/styles.css" type="text/css" />
-	</head>
-	<body>
-		<article class="container text-dark my-5">
-			<main class="text-center bg-light p-5 rounded shadow-sm">
-				<h1 class="display-1 text-primary">Musala Soft Gateways Api</h1>
-				<span class="text-secondary mt-5">
-					Frontend web application is running right
-					<a
-						href="https://chat-room-web-application.vercel.app"
-						target="_blank"
-					>
-						here
-					</a>
-					.
-				</span>
-			</main>
-			<section class="mt-5">
-				<h1>TEST</h1>
-				<h3>Endpoints:</h3>
-				<ul class="endpoints-list">
-					<li>
-						<a href="/add_test_data">Add test data</a>
-						<span> Adds to the database two gateways and two devices. </span>
-						<span>Response Type: JSON</span>
-					</li>
-					<li class="danger-zone">
-						<a href="/clean_all_data">Clean all data</a>
-						<span> Cleans all the data from the database.</span>
-						<span>Response Type: JSON</span>
-					</li>
-					<li>
-						<a href="/gateways">Gateways</a>
-						<span>
-							Displays the list of registered gateways and their connected
-							devices.
-						</span>
-						<span>Response Type: JSON</span>
-					</li>
-				</ul>
-			</section>
-		</article>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Musala Soft Gateways Api</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./css/styles.css" type="text/css" />
+  </head>
+  <body>
+    <article class="container text-dark my-5">
+      <main class="text-center bg-light p-5 rounded shadow-sm">
+        <h1 class="display-1 text-primary">Musala Soft Gateways Api</h1>
+        <span class="text-secondary mt-5">
+          Frontend web application is running right
+          <a href="http://localhost:4200" target="_blank"> here </a>
+          .
+        </span>
+      </main>
+      <section class="mt-5">
+        <h3>Endpoints:</h3>
+        <h5 class="text-muted">Test endpoints</h5>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <a href="/add_test_data">/add_test_data</a>
+            <span> Adds to the database two gateways and two devices. </span>
+            <br />
+            <span>Method: GET</span>
+            <br />
+            <span>Response Type: JSON</span>
+          </li>
+          <li class="list-group-item list-group-item-danger">
+            <a href="/clean_all_data">/clean_all_data</a>
+            <span> Cleans all the data from the database.</span>
+            <br />
+            <span>Method: GET</span>
+            <br />
+            <span>Response Type: JSON</span>
+          </li>
+        </ul>
+        <hr class="text-muted" />
+        <h5 class="text-muted">Api endpoints</h5>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <a href="/gateways">/gateways</a>
+            <span>
+              Gets the list of registered gateways and their connected devices.
+            </span>
+            <br />
+            <span>Method: GET</span>
+            <br />
+            <span>Response Type: JSON</span>
+          </li>
+          <li class="list-group-item">
+            <a href="#">/gateways/:id</a>
+            <span> Finds a gateway by its id. </span>
+            <br />
+            <span>Method: GET</span>
+            <br />
+            <span>Response Type: JSON</span>
+          </li>
+          <li class="list-group-item">
+            <a href="#">/gateways</a>
+            <span> Adds a new gateway to the list. </span>
+            <br />
+            <span>Method: POST</span>
+            <br />
+            <span>Response Type: JSON</span>
+          </li>
+          <li class="list-group-item">
+            <a href="#">/gateways/:id</a>
+            <span> Deletes a gateway by its id. </span>
+            <br />
+            <span>Method: DELETE</span>
+            <br />
+            <span>Response Type: JSON</span>
+          </li>
+          <li class="list-group-item">
+            <a href="#">/gateways/:id</a>
+            <span> Updates a gateway by its id. </span>
+            <br />
+            <span>Method: PUT</span>
+            <br />
+            <span>Response Type: JSON</span>
+          </li>
+        </ul>
+      </section>
+    </article>
+  </body>
 </html>
