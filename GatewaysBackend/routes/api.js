@@ -108,7 +108,7 @@ router.post('/gateways', (req, res) => {
   });
 });
 
-// // Delete a gateway
+// Delete a gateway
 router.delete('/gateways/:id', (req, res) => {
   const gatewayId = req.params.id;
   Gateway.findByIdAndDelete(gatewayId, (error) => {
@@ -119,22 +119,26 @@ router.delete('/gateways/:id', (req, res) => {
   });
 });
 
-// // Edit is not mentioned as a requirement! But I'll add it just to complete the CRUD
-// router.patch('/gateways/:id', (req, res) => {
-
-// })
-
-// // Devices endpoints
-// // Add device to gateway
-// router.post('/gateways/:id/add_device', (req, res) => {
-// const newDevice = new Device(...req.params.device)
-// const gateway = Gateway.findById(req.params.id)
-
-// })
-
-// Delete a device from gateway
-
-// Update a device in gateway
+// Edit a gateway
+router.put('/gateways/:id', (req, res) => {
+  Gateway.findByIdAndUpdate(
+    req.params.id,
+    {
+      serialNumber: req.body.serialNumber,
+      name: req.body.name,
+      ipv4: req.body.ipv4,
+      devices: req.body.devices,
+    },
+    { new: true },
+    (gateway, error) => {
+      console.log(gateway);
+      if (error) res.status(500).send(error);
+      res.status(200).json({
+        message: 'Gateway data deleted successfully',
+      });
+    },
+  );
+});
 
 // TEST ENDPOINTS SECTION
 // Add test data
