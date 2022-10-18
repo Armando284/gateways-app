@@ -1,94 +1,136 @@
-const express = require('express')
-const router = express.Router()
-const { v4: uuid } = require('uuid')
-const mongoose = require('mongoose')
+const express = require('express');
+
+const router = express.Router();
+const { v4: uuid } = require('uuid');
+const mongoose = require('mongoose');
 
 // MongoDB URL from docker-compose
-const dbHost = 'mongodb://database/Gateways'
+const dbHost = 'mongodb://database/Gateways';
 
 // Connect to mongodb
-mongoose.connect(dbHost)
+mongoose.connect(dbHost);
 
 // Create schema for devices
 const DeviceSchema = new mongoose.Schema({
-	UID: mongoose.ObjectId, // TODO: This data has to be a number!
-	vendor: String,
-	createdAt: Date,
-	status: Boolean
-})
+  UID: {
+    type: Number,
+    required: [true, 'The UID field is required'],
+  },
+  vendor: {
+    type: String,
+    required: [true, 'The vendor field is required'],
+  },
+  createdAt: {
+    type: Date,
+    required: [true, 'The createdAt field is required'],
+  },
+  status: {
+    type: Boolean,
+    required: [true, 'The status field is required'],
+  },
+});
 
 // Create schema for gateways
 const GatewaySchema = new mongoose.Schema({
-	serialNumber: String, // TODO: Here I'll use uuid package to generate a unique identifier separately from mongodb document ids. This data can be added by the user, perhaps I can add an enpoint to suggest an unique id to the user.
-	name: String,
-	ipv4: String,
-	devices: [DeviceSchema] // TODO: Set the maximum number of devices to 10
-})
+  serialNumber: {
+    type: String,
+    required: [true, 'The serialNumber field is required'],
+  },
+  name: {
+    type: String,
+    required: [true, 'The name field is required'],
+  },
+  ipv4: {
+    type: String,
+    required: [true, 'The ipv4 field is required'],
+    validate: {
+      validator(ipAddress) {
+        /**
+         * I don't use regex for the entire validation
+         * validating the proper range of the numbers
+         *  is more difficult than doing it with a regular comparison.
+         */
+        if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ipAddress)) return false;
+        const ipNumbers = ipAddress.split('.');
+        const outOfRange = ipNumbers
+          .find((number) => parseInt(number, 10) < 0 || parseInt(number, 10) > 255);
+
+        return !outOfRange;
+      },
+      message: (props) => `${props.value} is not a valid ipv4!`,
+    },
+  },
+  devices: {
+    type: [DeviceSchema],
+    min: 0,
+    max: [10, 'The maximum amount of devices connected to a Gateway is 10'],
+  },
+});
 
 // Create gateways and device models
-const Gateway = mongoose.model('Gateway', GatewaySchema)
-const Device = mongoose.model('Device', DeviceSchema)
+const Gateway = mongoose.model('Gateway', GatewaySchema);
+const Device = mongoose.model('Device', DeviceSchema);
 
 // Enpoints list
 router.get('/', (req, res) => {
-	res.status(200)
-	res.render("index")
-})
+  res.status(200).render('index');
+});
 
 // List all gateways and devices
 router.get('/gateways', (req, res) => {
-	Gateway.find({}, (error, gateways) => {
-		if (error) res.status(500).send(error)
-		res.status(200).contentType('application/json').json(gateways)
-	})
-})
+  Gateway.find({}, (error, gateways) => {
+    if (error) res.status(500).send(error);
+    res.status(200).contentType('application/json').json(gateways);
+  });
+});
 
 // Find a gateway by its id
 router.get('/gateways/:id', (req, res) => {
-	const gatewayId = req.params.id
-	Gateway.findById(gatewayId, (error, gateway) => {
-		if (error) res.status(500).send(error)
-		res.status(200).contentType('application/json').json(gateway)
-	})
-})
+  const gatewayId = req.params.id;
+  Gateway.findById(gatewayId, (error, gateway) => {
+    if (error) res.status(500).send(error);
+    res.status(200).contentType('application/json').json(gateway);
+  });
+});
 
 // Add a new gateway
 router.post('/gateways', (req, res) => {
-	const newGateway = new Gateway(
-		...req.params.gateway
-	)
+  const gateway = new Gateway({
+    serialNumber: req.body.serialNumber,
+    name: req.body.name,
+    ipv4: req.body.ipv4,
+    devices: [],
+  });
 
-	// TODO: Validate new gateway here
-	if (false /** Validation error */) res.status(500).send(error)
-	newGateway.save((error, gateway) => {
-		if (error) res.status(500).send(error)
-		res.status(201).contentType('application/json').json(gateway)
-	})
-})
+  gateway.save((error) => {
+    if (error) res.status(500).send(error);
+    res.status(201).json(gateway);
+  });
+});
 
-// Delete a gateway 
+// // Delete a gateway
 router.delete('/gateways/:id', (req, res) => {
-	const gatewayId = req.params.id
-	Gateway.findByIdAndDelete(gatewayId, error => {
-		if (error) res.status(500).send(error)
-		res.status(200).json({
-			message: 'Gateway data deleted successfully'
-		})
-	})
-})
+  const gatewayId = req.params.id;
+  Gateway.findByIdAndDelete(gatewayId, (error) => {
+    if (error) res.status(500).send(error);
+    res.status(200).json({
+      message: 'Gateway data deleted successfully',
+    });
+  });
+});
 
-// Edit is not mentioned as a requirement! But I'll add it just to complete the CRUD 
-router.patch('/gateways/:id', (req, res) => {
+// // Edit is not mentioned as a requirement! But I'll add it just to complete the CRUD
+// router.patch('/gateways/:id', (req, res) => {
 
-})
+// })
 
-// Devices endpoints
-// Add device to gateway 
-router.post('/gateways/:id/add_device', (req, res) => {
-	const newDevice = new Device(...req.params.device)
-	const gateway = Gateway.findById(req.params.id)
+// // Devices endpoints
+// // Add device to gateway
+// router.post('/gateways/:id/add_device', (req, res) => {
+// const newDevice = new Device(...req.params.device)
+// const gateway = Gateway.findById(req.params.id)
 
-})
+// })
 
 // Delete a device from gateway
 
@@ -97,57 +139,68 @@ router.post('/gateways/:id/add_device', (req, res) => {
 // TEST ENDPOINTS SECTION
 // Add test data
 router.get('/add_test_data', (req, res) => {
-	// Example data source
-	const device_one = new Device({
-		vendor: 'Apple',
-		createdAt: new Date(),
-		status: true
-	})
+  // Example data source
+  const deviceOne = new Device({
+    UID: 1,
+    vendor: 'Apple',
+    createdAt: new Date(),
+    status: true,
+  });
 
-	const device_two = new Device({
-		vendor: 'Samsung',
-		createdAt: new Date(),
-		status: false
-	})
+  const deviceTwo = new Device({
+    UID: 2,
+    vendor: 'Samsung',
+    createdAt: new Date(),
+    status: false,
+  });
 
-	const gateway_one = new Gateway({
-		serialNumber: uuid(),
-		name: 'Gateway One',
-		ipv4: '192.168.0.255',
-		devices: [device_one, device_two]
-	})
+  const gatewayOne = new Gateway({
+    serialNumber: uuid(),
+    name: 'Gateway One',
+    ipv4: '192.168.0.255',
+    devices: [deviceOne, deviceTwo],
+  });
 
-	const gateway_two = new Gateway({
-		serialNumber: uuid(),
-		name: 'Gateway Two',
-		ipv4: '192.132.0.255',
-		devices: []
-	})
+  const gatewayTwo = new Gateway({
+    serialNumber: uuid(),
+    name: 'Gateway Two',
+    ipv4: '192.132.0.255',
+    devices: [],
+  });
 
-	let errorMsg;
+  const saveGateways = async () => {
+    const errorMsg = {};
+    try {
+      await gatewayOne.save();
+    } catch (error) {
+      errorMsg.gatewayOne = error;
+    }
+    try {
+      await gatewayTwo.save();
+    } catch (error) {
+      errorMsg.gatewayTwo = error;
+    }
+    return errorMsg.gatewayOne || errorMsg.gatewayTwo ? errorMsg : null;
+  };
 
-	gateway_one.save(error => {
-		if (error) errorMsg.gateway_one_error = error
-	})
-
-	gateway_two.save(error => {
-		if (error) errorMsg.gateway_two_error = error
-	})
-
-	if (errorMsg) res.status(500).send(errorMsg);
-
-	res.status(201).json({
-		message: 'Test Gateway data saved successfully'
-	})
-})
+  saveGateways().then((error) => {
+    if (error) {
+      res.status(500).send(error);
+      return;
+    }
+    res.status(201).json({
+      message: 'Test Gateway data saved successfully',
+    });
+  });
+});
 
 router.get('/clean_all_data', (req, res) => {
-	Gateway.deleteMany({}, error => {
-		if (error) res.status(500).send(error)
-		res.status(200).json({
-			message: 'All Gateway data deleted successfully'
-		})
-	})
-})
+  Gateway.deleteMany({}, (error) => {
+    if (error) res.status(500).send(error);
+    res.status(200).json({
+      message: 'All Gateway data deleted successfully',
+    });
+  });
+});
 
 module.exports = router;
