@@ -76,6 +76,21 @@ router.get('/', (req, res) => {
   res.status(200).render('index');
 });
 
+// Add a new gateway
+router.post('/gateways', (req, res) => {
+  const gateway = new Gateway({
+    serialNumber: req.body.serialNumber,
+    name: req.body.name,
+    ipv4: req.body.ipv4,
+    devices: [],
+  });
+
+  gateway.save((error) => {
+    if (error) res.status(500).send(error);
+    res.status(201).json(gateway);
+  });
+});
+
 // List all gateways and devices
 router.get('/gateways', (req, res) => {
   Gateway.find({}, (error, gateways) => {
@@ -93,19 +108,22 @@ router.get('/gateways/:id', (req, res) => {
   });
 });
 
-// Add a new gateway
-router.post('/gateways', (req, res) => {
-  const gateway = new Gateway({
-    serialNumber: req.body.serialNumber,
-    name: req.body.name,
-    ipv4: req.body.ipv4,
-    devices: [],
-  });
-
-  gateway.save((error) => {
-    if (error) res.status(500).send(error);
-    res.status(201).json(gateway);
-  });
+// Edit a gateway
+router.put('/gateways/:id', (req, res) => {
+  Gateway.findByIdAndUpdate(
+    req.params.id,
+    {
+      serialNumber: req.body.gateway.serialNumber,
+      name: req.body.gateway.name,
+      ipv4: req.body.gateway.ipv4,
+      devices: req.body.gateway.devices,
+    },
+    { new: true },
+    (gateway, error) => {
+      if (error) res.status(500).send(error);
+      res.status(200).json(gateway);
+    },
+  );
 });
 
 // Delete a gateway
@@ -117,27 +135,6 @@ router.delete('/gateways/:id', (req, res) => {
       message: 'Gateway data deleted successfully',
     });
   });
-});
-
-// Edit a gateway
-router.put('/gateways/:id', (req, res) => {
-  Gateway.findByIdAndUpdate(
-    req.params.id,
-    {
-      serialNumber: req.body.serialNumber,
-      name: req.body.name,
-      ipv4: req.body.ipv4,
-      devices: req.body.devices,
-    },
-    { new: true },
-    (gateway, error) => {
-      console.log(gateway);
-      if (error) res.status(500).send(error);
-      res.status(200).json({
-        message: 'Gateway data deleted successfully',
-      });
-    },
-  );
 });
 
 // TEST ENDPOINTS SECTION
