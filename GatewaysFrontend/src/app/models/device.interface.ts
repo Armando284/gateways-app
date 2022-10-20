@@ -1,4 +1,4 @@
-export default interface Device {
+export interface Device {
   UID: Number,
   vendor: string,
   createdAt: Date,

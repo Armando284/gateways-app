@@ -1,6 +1,6 @@
-import Device from './device.interface';
+import { Device } from './device.interface';
 
-export default interface Gateway {
+export interface Gateway {
   serialNumber: string,
   name: string,
   ipv4: string,
