@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow fixed-top">
   <a
     class="navbar-brand text-success"
     [routerLink]="['/']"
@@ -27,7 +27,7 @@
         aria-label="Search"
       />
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-        Search
+        <fa-icon [icon]="searchIcon"></fa-icon>
       </button>
     </form>
   </div>
