@@ -1,1 +1,144 @@
-<p>gateways-list works!</p>
+<article>
+  <main class="my-5">
+    <div class="bg-success text-light text-center rounded p-5 shadow-sm">
+      <h3 class="display-4">
+        <fa-icon [icon]="gatewayIcon"></fa-icon>
+        Gateways List
+      </h3>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+      <div class="col-lg-6 col-md-8 col-sm-10">
+        <form
+          class="p-3 border rounded shadow text-center"
+          (submit)="onSubmit()"
+          [formGroup]="gatewayForm"
+        >
+          <h3 class="font-weight-bold text-uppercase">Add a new gateway</h3>
+          <div class="form-group">
+            <label for="name" class="sr-only">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter a name"
+              name="name"
+              formControlName="name"
+            />
+          </div>
+          <div
+            *ngIf="name && name.invalid && (name.dirty || name.touched)"
+            class="alert alert-danger mt-3"
+          >
+            <small *ngIf="name.errors?.['required']" class="font-italic">
+              A name is required
+            </small>
+          </div>
+          <div class="form-group">
+            <label for="serialNumber" class="sr-only">Serial Number</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter a serial number"
+              name="serialNumber"
+              formControlName="serialNumber"
+            />
+          </div>
+          <div
+            *ngIf="
+              serialNumber &&
+              serialNumber.invalid &&
+              (serialNumber.dirty || serialNumber.touched)
+            "
+            class="alert alert-danger mt-3"
+          >
+            <small
+              *ngIf="serialNumber.errors?.['required']"
+              class="font-italic"
+            >
+              A serial number is required
+            </small>
+          </div>
+          <div class="form-group">
+            <label for="ipv4" class="sr-only">Ipv4</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter an ipv4 address."
+              name="ipv4"
+              formControlName="ipv4"
+            />
+          </div>
+          <div
+            *ngIf="ipv4 && ipv4.invalid && (ipv4.dirty || ipv4.touched)"
+            class="alert alert-danger mt-3"
+          >
+            <small *ngIf="ipv4.errors?.['required']" class="font-italic">
+              A ip address is required
+            </small>
+            <small *ngIf="ipv4.errors?.['ipv4Format']" class="font-italic">
+              The ip address has a wrong format.
+            </small>
+          </div>
+          <div class="d-flex justify-content-end">
+            <button
+              type="submit"
+              class="btn btn-success"
+              [disabled]="gatewayForm.invalid"
+            >
+              Submit
+              <fa-icon
+                *ngIf="isLoading"
+                [icon]="loadingIcon"
+                [spin]="true"
+              ></fa-icon>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <app-alert *ngIf="errorMsg" [errorMsg]="errorMsg.error.message"></app-alert>
+
+    <div *ngIf="filter" class="d-flex justify-content-end mt-5 mb-n5">
+      <button class="btn btn-info" (pointerdown)="cleanFilter()">
+        '{{ filter }}'
+        <span class="badge badge-danger">{{ gateways.length }}</span>
+        X
+      </button>
+    </div>
+
+    <ul class="list-group mt-5">
+      <app-alert
+        *ngIf="gateways.length < 1"
+        [errorMsg]="'No gateways found'"
+      ></app-alert>
+      <li
+        *ngFor="let gateway of gateways; let i = index"
+        [attr.data-index]="i"
+        class="list-group-item bg-light"
+      >
+        <div class="d-flex justify-content-between">
+          <div class="d-flex align-items-center">
+            <b>{{ gateway.name }}</b>
+          </div>
+          <div class="btn-group" role="group" aria-label="button group">
+            <a
+              [routerLink]="['gateway']"
+              [queryParams]="{ id: gateway._id }"
+              class="btn btn-outline-success"
+            >
+              <fa-icon [icon]="infoIcon"></fa-icon>
+            </a>
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              (pointerdown)="deleteGateway(gateway._id, i)"
+            >
+              <fa-icon [icon]="deleteIcon"></fa-icon>
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </main>
+</article>
