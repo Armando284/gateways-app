@@ -10,7 +10,6 @@ import { Gateway, Device } from 'src/app/models';
 export class GatewaysService {
 
   API: string = environment.api;
-  gateways: Gateway[] = [];
 
   constructor(private http: HttpClient) { }
 
@@ -26,8 +25,12 @@ export class GatewaysService {
     return this.http.get<Gateway>(`${this.API}/gateways/${gatewayId}`);
   }
 
+  AddDevice(gatewayId: string, device: Device): Observable<Gateway> {
+    return this.http.put<Gateway>(`${this.API}/gateways/add-device/${gatewayId}`, device);
+  }
+
   UpdateGateway(gateway: Gateway): Observable<Gateway> {
-    return this.http.put<Gateway>(`${this.API}/gateways/${gateway._id}`, gateway)
+    return this.http.put<Gateway>(`${this.API}/gateways/${gateway._id}`, gateway);
   }
 
   DeleteGateway(gatewayId: string): Observable<{ message: string }> {
