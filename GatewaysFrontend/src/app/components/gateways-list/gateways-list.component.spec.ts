@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { GatewaysListComponent } from './gateways-list.component';
+import { GatewaysService } from 'src/app/services/gateways.service';
 
 describe('GatewaysListComponent', () => {
   let component: GatewaysListComponent;
@@ -8,9 +9,11 @@ describe('GatewaysListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ GatewaysListComponent ]
+      imports: [HttpClientModule],
+      providers: [GatewaysService, HttpClient],
+      declarations: [GatewaysListComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
