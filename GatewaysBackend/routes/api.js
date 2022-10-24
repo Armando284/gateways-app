@@ -15,6 +15,17 @@ const DeviceSchema = new mongoose.Schema({
   UID: {
     type: Number,
     required: [true, 'The UID field is required'],
+    validate: {
+      async validator(uid) {
+        let uidCount = 0;
+        const gateways = await mongoose.model('Gateway').find({});
+        gateways.forEach((gateway) => {
+          uidCount += gateway.devices.filter((device) => device.UID === uid).length;
+        });
+        return !uidCount;
+      },
+      message: (props) => `UID ${props.value} already exists!`,
+    },
   },
   vendor: {
     type: String,
@@ -72,56 +83,74 @@ const Gateway = mongoose.model('Gateway', GatewaySchema);
 const Device = mongoose.model('Device', DeviceSchema);
 
 // Enpoints list
-router.get('/', (req, res) => {
-  res.status(200).render('index');
-});
+router.get('/', (req, res) => res.status(200).render('index'));
 
 // Add a new gateway
 router.post('/gateways', (req, res) => {
-  const gateway = new Gateway({
+  const newGateway = new Gateway({
     serialNumber: req.body.serialNumber,
     name: req.body.name,
     ipv4: req.body.ipv4,
     devices: [],
   });
 
-  gateway.save((error) => {
-    if (error) res.status(500).send(error);
-    res.status(201).json(gateway);
+  newGateway.save((err, gateway) => {
+    if (err) return res.status(500).send(err);
+    return res.status(201).json(gateway);
   });
 });
 
 // List all gateways and devices
 router.get('/gateways', (req, res) => {
-  Gateway.find({}, (error, gateways) => {
-    if (error) res.status(500).send(error);
-    res.status(200).contentType('application/json').json(gateways);
+  Gateway.find({}, (err, gateways) => {
+    if (err) return res.status(500).send(err);
+    return res.status(200).contentType('application/json').json(gateways);
   });
 });
 
 // Find a gateway by its id
 router.get('/gateways/:id', (req, res) => {
   const gatewayId = req.params.id;
-  Gateway.findById(gatewayId, (error, gateway) => {
-    if (error) res.status(500).send(error);
-    res.status(200).contentType('application/json').json(gateway);
+  Gateway.findById(gatewayId, (err, gateway) => {
+    if (err) return res.status(500).send(err);
+    return res.status(200).contentType('application/json').json(gateway);
   });
 });
 
-// Edit a gateway
+// Add a device to a gateway
+router.put('/gateways/add-device/:id', (req, res) => {
+  const device = new Device({
+    UID: req.body.UID,
+    vendor: req.body.vendor,
+    createdAt: req.body.createdAt,
+    status: req.body.status,
+  });
+  Gateway
+    .findByIdAndUpdate(
+      req.params.id,
+      { $push: { devices: device } },
+      { new: true, runValidators: true },
+      (err, gateway) => {
+        if (err) return res.status(500).send(err);
+        return res.status(200).contentType('application/json').json(gateway);
+      },
+    );
+});
+
+// Edit a gateway it is not mentioned but just in case.
 router.put('/gateways/:id', (req, res) => {
   Gateway.findByIdAndUpdate(
     req.params.id,
     {
-      serialNumber: req.body.gateway.serialNumber,
-      name: req.body.gateway.name,
-      ipv4: req.body.gateway.ipv4,
-      devices: req.body.gateway.devices,
+      serialNumber: req.body.serialNumber,
+      name: req.body.name,
+      ipv4: req.body.ipv4,
+      devices: req.body.devices,
     },
     { new: true },
-    (gateway, error) => {
-      if (error) res.status(500).send(error);
-      res.status(200).json(gateway);
+    (err, gateway) => {
+      if (err) return res.status(500).send(err);
+      return res.status(200).contentType('application/json').json(gateway);
     },
   );
 });
@@ -129,9 +158,9 @@ router.put('/gateways/:id', (req, res) => {
 // Delete a gateway
 router.delete('/gateways/:id', (req, res) => {
   const gatewayId = req.params.id;
-  Gateway.findByIdAndDelete(gatewayId, (error) => {
-    if (error) res.status(500).send(error);
-    res.status(200).json({
+  Gateway.findByIdAndDelete(gatewayId, (err) => {
+    if (err) return res.status(500).send(err);
+    return res.status(200).contentType('application/json').json({
       message: 'Gateway data deleted successfully',
     });
   });
@@ -186,10 +215,9 @@ router.get('/add_test_data', (req, res) => {
 
   saveGateways().then((error) => {
     if (error) {
-      res.status(500).send(error);
-      return;
+      return res.status(500).send(error);
     }
-    res.status(201).json({
+    return res.status(201).contentType('application/json').json({
       message: 'Test Gateway data saved successfully',
     });
   });
@@ -197,8 +225,8 @@ router.get('/add_test_data', (req, res) => {
 
 router.get('/clean_all_data', (req, res) => {
   Gateway.deleteMany({}, (error) => {
-    if (error) res.status(500).send(error);
-    res.status(200).json({
+    if (error) return res.status(500).send(error);
+    return res.status(200).contentType('application/json').json({
       message: 'All Gateway data deleted successfully',
     });
   });
